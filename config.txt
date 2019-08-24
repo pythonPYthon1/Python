@@ -1,7 +1,0 @@
-[Database]
-host = localhost
-user = root
-password = longlnhe
-database = TestDB
-query1 = DROP TABLE IF EXISTS TASK_SCHEDULE
-query2 = CREATE TABLE TASK_SCHEDULE (id INT(11) NOT NULL AUTO_INCREMENT, name VARCHAR(45) NOT NULL, timestamp DATE , shift VARCHAR(45) NOT NULL, PRIMARY KEY(id)) ENGINE=InnoDB AUTO_INCREMENT=397 DEFAULT CHARSET=latin1
