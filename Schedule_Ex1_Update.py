@@ -26,6 +26,16 @@ class sql():
         databaseDB = config.get("Database", "database")
         query1 = config.get("Database", "query1")
         query2 = config.get("Database", "query2")
+        #----------------------------------------------------
+        self.username = config.get("Gmail", "Account")
+        self.password = config.get("Gmail", "Password")
+        self.msg = MIMEMultipart()
+        self.msg['From'] = self.username
+        self.msg['To'] = self.username
+        self.msg['Subject'] = config.get("Gmail", "Subject")
+        self.body = config.get("Gmail", "Body")
+        self.filename = config.get("Gmail", "Filename")
+        #-----------------------------------------------
         self.mydb = mysql.connector.connect(
         host= databaseHost,
         user=databaseUsername,
@@ -124,39 +134,29 @@ class sql():
         wb.close()
 
 
-def send_email():
-    config = ConfigParser()
-    config.read(os.getcwd() + "/config2.txt")
-    username = config.get("Gmail", "Account")
-    password = config.get("Gmail", "Password")
-    msg = MIMEMultipart()
-    msg['From'] = username
-    msg['To'] = username
-    msg['Subject'] = config.get("Gmail", "Subject")
-    body = config.get("Gmail", "Body")
-    try:
-        msg.attach(MIMEText(body, 'plain'))
-        filename = config.get("Gmail", "Filename")
-        attachment = open(filename, "rb")
-        part = MIMEBase('application', 'octet-stream')
-        part.set_payload((attachment).read())
-        email.encoders.encode_base64(part)
-        part.add_header('Content-Disposition', "attachment; filename = %s" %filename)
-        msg.attach(part)
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(username, password)
-        text = msg.as_string()
-        server.sendmail(username, username, text)
-        server.quit
-    except Exception as e:
-        print(str(e))
+    def send_email(self):
+        try:
+            self.msg.attach(MIMEText(self.body, 'plain'))
+            attachment = open(self.filename, "rb")
+            part = MIMEBase('application', 'octet-stream')
+            part.set_payload((attachment).read())
+            email.encoders.encode_base64(part)
+            part.add_header('Content-Disposition', "attachment; filename = %s" %self.filename)
+            self.msg.attach(part)
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.login(self.username, self.password)
+            text = self.msg.as_string()
+            server.sendmail(self.username, self.username, text)
+            server.quit
+        except Exception as e:
+            print(str(e))
     
 
 def main():
     sqlConnect = sql()
     sqlConnect.schedule(30, list_type1, list_type2, list_type3)
+    sqlConnect.send_email()
 
 if __name__ == '__main__':
     main()
-    send_email()
