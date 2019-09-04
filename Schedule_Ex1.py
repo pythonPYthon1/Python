@@ -13,7 +13,7 @@ from email.mime.text import MIMEText
 
 # List of person type 1, type 2 and type 3
 # bien toan cuc phai in hoa LIST_TYPE1
-LIST_TYPE1 = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6']
+LIST_TYPE1 = ['P2', 'P3', 'P4', 'P5', 'P6','P1']
 LIST_TYPE2 = ['PA', 'PB', 'PC', 'PD']
 LIST_TYPE3 = ['DuongPT3']
 
@@ -83,6 +83,7 @@ class sql():
         wb = openpyxl.load_workbook('Schedule_Ex1_Update.xlsx')
         sheet = wb.active
         count = 0
+        count1 = 0
         a = 0
         b = 0
         i = 0
@@ -91,6 +92,7 @@ class sql():
             for j in range (3):
                 # 1 shift
                 line1 = LIST_TYPE1[a] + " " + LIST_TYPE2[b] + " " + LIST_TYPE3[0] + " "
+                
                 # Write to mysql
                 today = dt.date.today()
                 name1 = str((LIST_TYPE1[a]))
@@ -103,17 +105,24 @@ class sql():
                 self.cursor.execute(*query3)           
                 # Write to excel
                 sheet.cell(row= i + 6, column = 1).value = timestamp1
+                
                 # 1 day equal 3 shifts 
                 line += line1
                 count +=1
+                count1 +=1
                 ''' if count == 6 need roll list person of type 1 1 time to avoid
                 one person of list type 1 have slot 1 2 times in a row
                 (truong hop 1 nguoi type 1 lam slot 1 2 lan lien tiep) '''
                 if count == 6:
-                    LIST_TYPE1 = numpy.roll(LIST_TYPE1, -1)
-                    # reset a and count
-                    a = 0
-                    count = 0
+                    if count1 == 12:
+                        LIST_TYPE1 = numpy.roll(LIST_TYPE1, -2)
+                        a = 0
+                        count = 0
+                        count1 = 0
+                    else:
+                        LIST_TYPE1 = numpy.roll(LIST_TYPE1, -1)
+                        a = 0
+                        count = 0
                 else:
                     # if count != 6 increasing a 1 unit
                     a = a + 1
